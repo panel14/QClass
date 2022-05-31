@@ -13,11 +13,10 @@ public class CQueue implements Queue{
     private int first;
     private int last;
     //длина очереди
-    private int length;
 
     //Публичный конструктор
     public CQueue() {
-        first = 0; last = 9; length = 0;
+        first = 0; last = 9;
         queue = new int[10];
 
         block = new ReentrantLock();
@@ -27,7 +26,7 @@ public class CQueue implements Queue{
     //Вывести очередь в консоль
     private void printQueue() {
         System.out.println("Состояние очереди:");
-        if (first < last) {
+/*        if (first < last) {
             for (int i = first; i <= last; i++)
                 System.out.print(queue[i] + " ");
         }
@@ -36,12 +35,22 @@ public class CQueue implements Queue{
                 System.out.print(queue[i] + " ");
             for (int i = 0; i < last; i++)
                 System.out.print(queue[i] + " ");
+        }*/
+        int firstPointer = first; int lastPointer = last;
+
+        while (!(getNext(firstPointer) == lastPointer)) {
+            System.out.print(queue[getNext(firstPointer)] + " ");
+            firstPointer = getNext(firstPointer);
         }
         System.out.println();
     }
 
-    public int getLength() {
-        return length;
+    private int getNext(int index) {
+        return ++index % 10;
+    }
+
+    public int curPosition() {
+        return first;
     }
 
     @Override
@@ -53,12 +62,11 @@ public class CQueue implements Queue{
                 //Если очередь полная, потребители ждут
                 while (full()) getter.await();
                 //Увеличение указателя конца
-                last = (last + 1) % 10;
+                last = getNext(last);
                 queue[last] = val;
                 //Печать очереди
                 printQueue();
                 //Длина уменьшилась на 1
-                length++;
                 //Сигнал о том, что очередь не пустая и можно использовать get()
                 setter.signalAll();
             } catch (InterruptedException e) {
@@ -79,9 +87,8 @@ public class CQueue implements Queue{
             //Если очередь пуста, то производители ждут
             while (empty()) setter.await();
             //Увеличение указателя начала
-            first = (first + 1) % 10;
+            first = getNext(first);
             printQueue();
-            length--;
             //Сигнал о том, что очередь не полная и можно использовать put()
             getter.signalAll();
             return queue[first];
@@ -97,11 +104,11 @@ public class CQueue implements Queue{
 
     @Override
     public boolean full() {
-        return ((first + 1) + 1) % 10 == last;
+        return getNext(last + 1) == first;
     }
 
     @Override
     public boolean empty() {
-        return (first + 1) % 10 == last;
+        return getNext(last) == first;
     }
 }

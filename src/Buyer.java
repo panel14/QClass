@@ -10,7 +10,7 @@ public class Buyer implements Runnable {
     public void run() {
         while (true) {
             try {
-                Thread.sleep(1500);
+                Thread.sleep(3000);
                 //Взять товар из очереди
                 System.out.println("Куплен товар: " + queue.get() + ". Покупатель: " + Thread.currentThread().getName());
             } catch (InterruptedException e) {

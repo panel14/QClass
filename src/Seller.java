@@ -1,12 +1,12 @@
 public class Seller implements Runnable {
     private CQueue queue;
     private int value;
-    private int curValue;
+    private int curPos;
 
     public Seller(CQueue queue) {
         this.queue = queue;
         value = 1;
-        curValue = value;
+        curPos = queue.curPosition();
         //Запуск из конструктора
         new Thread(this).start();
     }
@@ -16,15 +16,16 @@ public class Seller implements Runnable {
         while (true) {
             //Поместить товар в очередь
             queue.put(value);
-            curValue++;
             System.out.println("Доставлен товар: " + value);
             //Если длина не равна количеству произведенного товара -> товар взяли, нужно увеличить значение value
-            if (curValue != queue.getLength()) {
-                value = value + 1;
-                curValue = queue.getLength();
+
+            if (curPos != queue.curPosition()) {
+                value++;
+                curPos = queue.curPosition();
             }
+
             try {
-                Thread.sleep(500);
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
