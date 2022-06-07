@@ -12,12 +12,14 @@ public class CQueue implements Queue{
     //указатели на начало и на конец очереди
     private int first;
     private int last;
-    //длина очереди
+
+    private boolean isGot;
 
     //Публичный конструктор
     public CQueue() {
         first = 0; last = 9;
         queue = new int[10];
+        isGot = false;
 
         block = new ReentrantLock();
         getter = block.newCondition(); setter = block.newCondition();
@@ -26,16 +28,6 @@ public class CQueue implements Queue{
     //Вывести очередь в консоль
     private void printQueue() {
         System.out.println("Состояние очереди:");
-/*        if (first < last) {
-            for (int i = first; i <= last; i++)
-                System.out.print(queue[i] + " ");
-        }
-        else {
-            for (int i = first; i < 10; i++)
-                System.out.print(queue[i] + " ");
-            for (int i = 0; i < last; i++)
-                System.out.print(queue[i] + " ");
-        }*/
         int firstPointer = first; int lastPointer = last;
 
         while (!(getNext(firstPointer) == lastPointer)) {
@@ -49,12 +41,12 @@ public class CQueue implements Queue{
         return ++index % 10;
     }
 
-    public int curPosition() {
-        return first;
+    public boolean isGot() {
+        return isGot;
     }
 
     @Override
-    public void put(int val) {
+    public void put(int val) throws InterruptedException {
         //Блокировка метода
         block.lock();
          {
@@ -69,8 +61,7 @@ public class CQueue implements Queue{
                 //Длина уменьшилась на 1
                 //Сигнал о том, что очередь не пустая и можно использовать get()
                 setter.signalAll();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+                isGot = false;
             }
             //Даже если возникнет прерывание, блокировку нужно снять
             finally {
@@ -80,7 +71,7 @@ public class CQueue implements Queue{
     }
 
     @Override
-    public int get() {
+    public int get() throws InterruptedException {
         //Блокировка метода
         block.lock();
         try {
@@ -91,20 +82,18 @@ public class CQueue implements Queue{
             printQueue();
             //Сигнал о том, что очередь не полная и можно использовать put()
             getter.signalAll();
+            isGot = true;
             return queue[first];
-        } catch (InterruptedException e) {
-            e.printStackTrace();
         }
         //Даже если возникнет прерывание, блокировку нужно снять
         finally {
             block.unlock();
         }
-        return 0;
     }
 
     @Override
     public boolean full() {
-        return getNext(last + 1) == first;
+        return getNext(getNext(last)) == first;
     }
 
     @Override
