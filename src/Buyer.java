@@ -10,9 +10,12 @@ public class Buyer implements Runnable {
     public void run() {
         while (true) {
             try {
-                Thread.sleep(3000);
+                //Случайное число итераций (сколько товара возьмем)
+                int iterCount = (int)(Math.random() * (10 - 1)) + 1;
+                for (int i = 0; i < iterCount; i++)
+                    System.out.println("Куплен товар: " + queue.get() + ". Покупатель: " + Thread.currentThread().getName());
+                Thread.sleep(100);
                 //Взять товар из очереди
-                System.out.println("Куплен товар: " + queue.get() + ". Покупатель: " + Thread.currentThread().getName());
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

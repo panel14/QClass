@@ -27,6 +27,8 @@ public class CQueue implements Queue{
 
     //Вывести очередь в консоль
     private void printQueue() {
+        block.lock();
+
         System.out.println("Состояние очереди:");
         int firstPointer = first; int lastPointer = last;
 
@@ -35,15 +37,22 @@ public class CQueue implements Queue{
             firstPointer = getNext(firstPointer);
         }
         System.out.println();
+
+        block.unlock();
     }
 
     private int getNext(int index) {
         return ++index % 10;
     }
 
-    public boolean isGot() {
+    public boolean getGot() {
         return isGot;
     }
+
+    public void setGot(boolean isGot) {
+        this.isGot = isGot;
+    }
+
 
     @Override
     public void put(int val) throws InterruptedException {
@@ -61,7 +70,6 @@ public class CQueue implements Queue{
                 //Длина уменьшилась на 1
                 //Сигнал о том, что очередь не пустая и можно использовать get()
                 setter.signalAll();
-                isGot = false;
             }
             //Даже если возникнет прерывание, блокировку нужно снять
             finally {
