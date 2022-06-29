@@ -49,10 +49,11 @@ public class CQueue implements Queue{
         return isGot;
     }
 
-    public void setGot(boolean isGot) {
-        this.isGot = isGot;
+    private void changeGot(boolean value) {
+        block.lock();
+        isGot = value;
+        block.unlock();
     }
-
 
     @Override
     public void put(int val) throws InterruptedException {
@@ -67,7 +68,7 @@ public class CQueue implements Queue{
                 queue[last] = val;
                 //Печать очереди
                 printQueue();
-                //Длина уменьшилась на 1
+                isGot = false;
                 //Сигнал о том, что очередь не пустая и можно использовать get()
                 setter.signalAll();
             }
@@ -89,8 +90,8 @@ public class CQueue implements Queue{
             first = getNext(first);
             printQueue();
             //Сигнал о том, что очередь не полная и можно использовать put()
-            getter.signalAll();
             isGot = true;
+            getter.signalAll();
             return queue[first];
         }
         //Даже если возникнет прерывание, блокировку нужно снять

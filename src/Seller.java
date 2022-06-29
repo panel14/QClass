@@ -1,5 +1,3 @@
-import java.util.Random;
-
 public class Seller implements Runnable {
     private CQueue queue;
     private int value;
@@ -16,14 +14,13 @@ public class Seller implements Runnable {
         while (true) {
             //Поместить товар в очередь
             try {
-                queue.put(value);
-                System.out.println("Доставлен товар: " + value);
                 //Если длина не равна количеству произведенного товара -> товар взяли, нужно увеличить значение value
-
                 if (queue.getGot()) {
                     value++;
-                    queue.setGot(false);
                 }
+                Thread.sleep(100);
+                queue.put(value);
+                System.out.println("Доставлен товар: " + value);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
